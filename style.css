@@ -2,23 +2,28 @@
    A Todo Ritmo — estilos generales
    ======================================================= */
 
-/* ---- @font-face reales: descomentar y completar rutas cuando tengas los archivos ----
+/* ---- Neue Haas Grotesk: se carga via Adobe Fonts (Typekit), <link> ya agregado en index.html ----
+   IMPORTANTE: el nombre real de font-family lo define Adobe, no nosotros.
+   Para encontrarlo: entrá a tu kit en fonts.adobe.com → "View kit details" → ahí Adobe
+   lista el nombre exacto, algo como 'neue-haas-grotesk-display' (con ese formato, en minúsculas
+   y con guiones). Reemplazá el valor de --font-body más abajo por ese nombre exacto.
+--------------------------------------------------------------------------------------- */
+
+/*Music Volume*/
 @font-face {
-  font-family: 'Neue Haas Grotesk';
-  src: url('../fonts/NeueHaasGrotesk-Regular.woff2') format('woff2');
+  font-family: 'Music Volume';
+  src: url('fonts/music_volume/Music-Volume-Reg.otf') format('opentype');
   font-weight: 400;
-}
-@font-face {
-  font-family: 'Neue Haas Grotesk';
-  src: url('../fonts/NeueHaasGrotesk-Bold.woff2') format('woff2');
-  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
 @font-face {
   font-family: 'Music Volume';
-  src: url('../fonts/MusicVolume.woff2') format('woff2');
-  font-weight: 400;
+  src: url('fonts/music_volume/Music-Volume-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
---------------------------------------------------------------------------------------- */
 
 :root{
   /* paleta */
@@ -28,9 +33,10 @@
   --salmon: #F19682;
   --negro:  #000000;
 
-  /* tipografia (fallback de preview: Archivo / Bungee, reemplazar por las reales) */
-  --font-body:    'Neue Haas Grotesk', 'Archivo', Helvetica, Arial, sans-serif;
-  --font-display: 'Music Volume', 'Bungee', cursive;
+  /* tipografia Adobe Fonts*/
+  --font-body:          'neue-haas-grotesk-text', Helvetica, Arial, sans-serif;
+  --font-heading:        'neue-haas-grotesk-display', Helvetica, Arial, sans-serif;
+  --font-display:       'Music Volume', 'Bungee', cursive;
 }
 
 *{ margin:0; padding:0; box-sizing:border-box; }
@@ -51,8 +57,10 @@ a{ color:inherit; text-decoration:none; }
    ======================================================= */
 
 .navbar-atr{
-  background-color: var(--crema);
-  border-bottom: 2px solid var(--negro);
+  background-color: rgba(232,225,195,0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: none;
   padding-top: 16px;
   padding-bottom: 16px;
 }
@@ -118,10 +126,25 @@ a{ color:inherit; text-decoration:none; }
    ======================================================= */
 
 .hero{
-  background-color: var(--rojo);
+  position: relative;
+  min-height: 100vh;
+  background-image: url('Images/piano-hero.JPEG');
+  background-size: cover;
+  background-position: center 35%;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero__content{
   color: var(--crema);
-  border-bottom: 2px solid var(--negro);
-  padding: 56px 0 72px;
+  text-align: center;
+  max-width: 440px;
+  padding: 0 24px;
+  /* empuja el bloque de texto hacia abajo, para que caiga sobre el área negra
+     de la imagen y no sobre las teclas de piano de arriba */
+  margin-top: 14vh;
 }
 
 .hero__eyebrow{
@@ -135,6 +158,7 @@ a{ color:inherit; text-decoration:none; }
 
 .hero__title{
   font-family: var(--font-display);
+  font-weight: 700;
   font-size: clamp(48px, 12vw, 96px);
   line-height: 0.98;
   text-transform: uppercase;
@@ -152,26 +176,24 @@ a{ color:inherit; text-decoration:none; }
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background-color: var(--crema);
+  background-color: rgba(232,225,195,0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   color: var(--negro);
   font-weight: 700;
   font-size: 15px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   padding: 16px 28px;
-  border-radius: 2px;
-  border: 2px solid var(--negro);
-  transition: transform .15s ease;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.15);
+  transition: transform .15s ease, background-color .15s ease;
 }
 
 .hero__cta:hover{
-  transform: translate(-2px,-2px);
+  transform: translateY(-2px);
+  background-color: rgba(232,225,195,0.85);
   color: var(--negro);
-}
-
-.hero__art{
-  max-width: 380px;
-  margin: 0 auto;
 }
 
 /* =======================================================
