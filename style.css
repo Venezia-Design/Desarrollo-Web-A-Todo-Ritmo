@@ -172,8 +172,9 @@ a { color: inherit; text-decoration: none; }
 
 .hero__sub {
   margin-top: 20px;
-  font-size: 17px;
+  font-size: 15px;
   line-height: 1.6;
+  max-width: 200px;
 }
 
 .hero__cta {
@@ -202,28 +203,15 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* =======================================================
-   DIVISOR PENTAGRAMA
-   ======================================================= */
-
-.staff-divider {
-  background-color: var(--crema);
-  padding: 18px 0;
-  overflow: hidden;
-}
-
-.staff-divider--claro {
-  background-color: var(--bordo);
-}
-
-.staff-divider svg { display: block; width: 100%; height: 28px; }
-
-/* =======================================================
-   SECCIONES — base compartida
+   SECCIONES — píldoras apiladas con border-radius
    ======================================================= */
 
 .seccion {
   background-color: var(--crema);
-  padding: var(--section-py) var(--section-px);
+  padding: calc(var(--section-py) + 28px) var(--section-px) var(--section-py);
+  border-radius: 28px 28px 0 0;
+  margin-top: -28px;
+  position: relative;
 }
 
 .seccion--oscura {
@@ -571,6 +559,19 @@ a { color: inherit; text-decoration: none; }
   overflow: hidden;
 }
 
+.muestra-card--imagen {
+  min-height: 240px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.muestra-card__foto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .muestra-card__fecha {
   background-color: var(--bordo);
   color: var(--crema);
@@ -770,7 +771,10 @@ a { color: inherit; text-decoration: none; }
 .footer {
   background-color: var(--negro);
   color: var(--crema);
-  padding: 48px var(--section-px) 32px;
+  padding: calc(48px + 28px) var(--section-px) 48px;
+  border-radius: 28px 28px 0 0;
+  margin-top: -28px;
+  position: relative;
 }
 
 .footer__top {
