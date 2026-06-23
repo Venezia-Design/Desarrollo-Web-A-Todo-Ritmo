@@ -122,7 +122,7 @@ a { color: inherit; text-decoration: none; }
 .hero {
   position: relative;
   min-height: 100vh;
-  background-image: url('Images/piano-hero.JPEG');
+  background-image: url('Images/piano-hero.png');
   background-size: cover;
   background-position: center 35%;
   background-repeat: no-repeat;
@@ -246,6 +246,10 @@ a { color: inherit; text-decoration: none; }
 }
 
 .seccion__titulo--claro { color: var(--crema); }
+
+.seccion__titulo--sans {
+  font-family: var(--font-heading); /* neue-haas-grotesk-display, bold */
+}
 
 /* =======================================================
    INSTRUMENTOS
@@ -465,8 +469,8 @@ a { color: inherit; text-decoration: none; }
 
 .filtro-btn--activo,
 .filtro-btn:hover {
-  background-color: var(--negro);
-  color: var(--crema);
+  background-color: var(--salmon);
+  color: var(--negro);
 }
 
 .talleres-lista {
