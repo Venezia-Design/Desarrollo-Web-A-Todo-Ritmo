@@ -1,0 +1,434 @@
+<?php
+include 'conn.php';
+
+$esAdmin = isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador';
+
+// Instrumentos + profesores de cada uno
+$instrumentos = [];
+$res = $conn->query("SELECT id_instrumentos, nombre_de_instrumento FROM instrumentos");
+while ($row = $res->fetch_assoc()) {
+    $instrumentos[$row['id_instrumentos']] = [
+        'nombre' => $row['nombre_de_instrumento'],
+        'profesores' => []
+    ];
+}
+$res = $conn->query("
+    SELECT e.id_instrumentos, CONCAT(p.nombre, ' ', p.apellido) AS profe
+    FROM especializar e
+    JOIN profesores p ON p.dni_profesor = e.dni_profesor
+");
+while ($row = $res->fetch_assoc()) {
+    if (isset($instrumentos[$row['id_instrumentos']])) {
+        $instrumentos[$row['id_instrumentos']]['profesores'][] = $row['profe'];
+    }
+}
+
+// Imagen por instrumento (según los archivos que armaron en Images/)
+function imagenInstrumento($nombre) {
+    $n = mb_strtolower($nombre);
+    if (str_contains($n, 'piano'))    return 'Mesa de trabajo 8.png';
+    if (str_contains($n, 'guitarra')) return 'Mesa de trabajo 6.png';
+    if (str_contains($n, 'canto'))    return 'Mesa de trabajo 5.png';
+    if (str_contains($n, 'ater'))     return 'Mesa de trabajo 3.png';
+    if (str_contains($n, 'bajo'))     return 'Mesa de trabajo 1.png';
+    if (str_contains($n, 'violin') || str_contains($n, 'violín')) return 'Mesa de trabajo 7.png';
+    return 'Mesa de trabajo 8.png';
+}
+
+// Profesores con sus instrumentos
+$profesores = [];
+$res = $conn->query("SELECT dni_profesor, nombre, apellido, Biografia FROM profesores");
+while ($row = $res->fetch_assoc()) {
+    $profesores[$row['dni_profesor']] = $row;
+    $profesores[$row['dni_profesor']]['instrumentos'] = [];
+}
+$res = $conn->query("
+    SELECT e.dni_profesor, i.nombre_de_instrumento
+    FROM especializar e
+    JOIN instrumentos i ON i.id_instrumentos = e.id_instrumentos
+");
+while ($row = $res->fetch_assoc()) {
+    if (isset($profesores[$row['dni_profesor']])) {
+        $profesores[$row['dni_profesor']]['instrumentos'][] = $row['nombre_de_instrumento'];
+    }
+}
+
+// Talleres
+$talleres = [];
+$res = $conn->query("
+    SELECT t.nro_comision, t.nombre_taller, t.dia_de_la_semana, t.hora_de_inicio, t.hora_de_finalizacion,
+           CONCAT(p.nombre, ' ', p.apellido) AS profe
+    FROM talleres t
+    JOIN profesores p ON p.dni_profesor = t.dni_profesor
+    ORDER BY t.nro_comision
+");
+while ($row = $res->fetch_assoc()) {
+    $talleres[] = $row;
+}
+
+// Presentaciones (muestras) con repertorio
+$presentaciones = [];
+$res = $conn->query("SELECT id_presentacion, día, lugar FROM presentacion ORDER BY día");
+while ($row = $res->fetch_assoc()) {
+    $presentaciones[$row['id_presentacion']] = $row;
+    $presentaciones[$row['id_presentacion']]['canciones'] = [];
+}
+$res = $conn->query("
+    SELECT pr.id_presentacion, c.nombre_cancion, c.duración
+    FROM presentar pr
+    JOIN canciones c ON c.id_canciones = pr.id_canciones
+");
+while ($row = $res->fetch_assoc()) {
+    if (isset($presentaciones[$row['id_presentacion']])) {
+        $presentaciones[$row['id_presentacion']]['canciones'][] = $row;
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Todo Ritmo — Escuela de música</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://use.typekit.net/lqo1wek.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar navbar-expand-md navbar-atr sticky-top">
+    <div class="container-fluid px-4 px-md-5">
+      <a class="navbar-brand" href="#inicio">A Todo Ritmo</a>
+      <button class="navbar-toggler border-0" type="button"
+              data-bs-toggle="offcanvas" data-bs-target="#navOffcanvas"
+              aria-controls="navOffcanvas" aria-label="Abrir menú">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#instrumentos">Instrumentos</a></li>
+          <li class="nav-item"><a class="nav-link" href="#profesores">Profesores</a></li>
+          <li class="nav-item"><a class="nav-link" href="#talleres">Horarios</a></li>
+          <li class="nav-item"><a class="nav-link" href="#muestras">Muestras</a></li>
+          <li class="nav-item"><a class="nav-link" href="#anotarme">Anotarme</a></li>
+          <?php if ($esAdmin): ?>
+            <li class="nav-item"><a class="nav-link" href="logout.php">Salir (admin)</a></li>
+          <?php else: ?>
+            <li class="nav-item"><a class="nav-link" href="index.php">Acceso admin</a></li>
+          <?php endif; ?>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="offcanvas offcanvas-end offcanvas-atr" tabindex="-1" id="navOffcanvas">
+    <div class="offcanvas-header">
+      <span class="navbar-brand m-0" style="color:inherit;">Menú</span>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" data-bs-dismiss="offcanvas" href="#instrumentos">Instrumentos<small>Elegí qué tocar</small></a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-dismiss="offcanvas" href="#profesores">Profesores<small>Quién te enseña</small></a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-dismiss="offcanvas" href="#talleres">Horarios<small>Talleres por día</small></a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-dismiss="offcanvas" href="#muestras">Muestras<small>Próximos shows</small></a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-dismiss="offcanvas" href="#anotarme">Anotarme<small>Sumate ahora</small></a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero" id="inicio">
+    <div class="hero__overlay"></div>
+    <div class="hero__content">
+      <p class="hero__eyebrow">Escuela de instrumentos &amp; muestras en vivo</p>
+      <h1 class="hero__title">A Todo<br>Ritmo</h1>
+      <p class="hero__sub">Un espacio para descubrir tu sonido, aprender un instrumento y compartirlo con otros.</p>
+      <a href="#anotarme" class="hero__cta">Quiero anotarme →</a>
+    </div>
+  </section>
+
+  <!-- INSTRUMENTOS -->
+  <section class="seccion" id="instrumentos">
+    <div class="seccion__header">
+      <p class="seccion__eyebrow">Lo que enseñamos</p>
+      <h2 class="seccion__titulo">Instrumentos</h2>
+    </div>
+
+    <div class="instrumentos-grid">
+      <?php foreach ($instrumentos as $inst): ?>
+        <button class="instrumento-card"
+                data-instrumento="<?php echo htmlspecialchars($inst['nombre']); ?>"
+                data-profesores="<?php echo htmlspecialchars(implode(', ', $inst['profesores'])); ?>">
+          <img src="Images/<?php echo imagenInstrumento($inst['nombre']); ?>"
+               alt="<?php echo htmlspecialchars($inst['nombre']); ?>"
+               class="instrumento-card__imagen">
+        </button>
+      <?php endforeach; ?>
+    </div>
+
+    <div class="especializar" id="especializar" aria-live="polite" hidden>
+      <div class="especializar__inner">
+        <button class="especializar__cerrar" aria-label="Cerrar">✕</button>
+        <p class="especializar__label">Profesores de</p>
+        <p class="especializar__instrumento" id="esp-instrumento"></p>
+        <p class="especializar__lista" id="esp-lista"></p>
+        <a href="#profesores" class="especializar__link">Ver perfiles completos →</a>
+      </div>
+    </div>
+  </section>
+
+<!-- PROFESORES -->
+  <section class="seccion seccion--oscura" id="profesores">
+<div class="seccion__header">
+<p class="seccion__eyebrow seccion__eyebrow--claro">El equipo</p>
+<h2 class="seccion__titulo seccion__titulo--claro seccion__titulo--sans">Profesores</h2>
+</div>
+<div class="profesores-carrusel" role="list">
+<?php foreach ($profesores as $p):
+$iniciales = mb_strtoupper(mb_substr($p['nombre'],0,1) . mb_substr($p['apellido'],0,1));
+?>
+<article class="profe-card" role="listitem">
+<div class="profe-card__avatar"><?php echo htmlspecialchars($iniciales); ?></div>
+<h3 class="profe-card__nombre"><?php echo htmlspecialchars($p['nombre'] . ' ' . $p['apellido']); ?></h3>
+<p class="profe-card__instrumentos"><?php echo htmlspecialchars(implode(' · ', $p['instrumentos'])); ?></p>
+<?php if ($esAdmin): ?>
+  <form action="guardar.php" method="post" class="edit-inline">
+    <input type="hidden" name="tipo" value="profesor">
+    <input type="hidden" name="dni_profesor" value="<?php echo $p['dni_profesor']; ?>">
+    <textarea name="biografia"><?php echo htmlspecialchars($p['Biografia']); ?></textarea>
+    <button type="submit" class="btn-guardar">Guardar bio</button>
+  </form>
+<?php else: ?>
+  <p class="profe-card__bio"><?php echo htmlspecialchars($p['Biografia']); ?></p>
+<?php endif; ?>
+</article>
+<?php endforeach; ?>
+</div>
+<div class="carrusel-dots" id="carrusel-dots" aria-hidden="true"></div>
+</section>
+
+<!-- TALLERES -->
+  <section class="seccion" id="talleres">
+<div class="seccion__header">
+<p class="seccion__eyebrow">Esta semana</p>
+<h2 class="seccion__titulo">Talleres y horarios</h2>
+</div>
+<div class="talleres-filtros" role="group" aria-label="Filtrar por día">
+<button class="filtro-btn filtro-btn--activo" data-dia="todos">Todos</button>
+<button class="filtro-btn" data-dia="Lunes">Lun</button>
+<button class="filtro-btn" data-dia="Martes">Mar</button>
+<button class="filtro-btn" data-dia="Miércoles">Mié</button>
+<button class="filtro-btn" data-dia="Jueves">Jue</button>
+<button class="filtro-btn" data-dia="Viernes">Vie</button>
+<button class="filtro-btn" data-dia="Sábado">Sáb</button>
+</div>
+<div class="talleres-lista" id="talleres-lista">
+<?php foreach ($talleres as $t): ?>
+<div class="taller-row" data-dia="<?php echo htmlspecialchars($t['dia_de_la_semana']); ?>">
+<div class="taller-row__dia"><?php echo htmlspecialchars(mb_substr($t['dia_de_la_semana'],0,3)); ?></div>
+<div class="taller-row__info">
+<p class="taller-row__nombre"><?php echo htmlspecialchars($t['nombre_taller']); ?></p>
+<p class="taller-row__detalle"><?php echo htmlspecialchars($t['profe']); ?></p>
+<?php if ($esAdmin): ?>
+  <form action="guardar.php" method="post" class="edit-inline">
+    <input type="hidden" name="tipo" value="taller">
+    <input type="hidden" name="nro_comision" value="<?php echo $t['nro_comision']; ?>">
+    <input type="time" name="hora_de_inicio" value="<?php echo $t['hora_de_inicio']; ?>">
+    <input type="time" name="hora_de_finalizacion" value="<?php echo $t['hora_de_finalizacion']; ?>">
+    <button type="submit" class="btn-guardar">Guardar</button>
+  </form>
+<?php endif; ?>
+</div>
+<?php if (!$esAdmin): ?>
+<div class="taller-row__hora">
+<?php echo substr($t['hora_de_inicio'],0,5) . '–' . substr($t['hora_de_finalizacion'],0,5); ?>
+</div>
+<?php endif; ?>
+</div>
+<?php endforeach; ?>
+</div>
+</section>
+
+<!-- MUESTRAS -->
+  <section class="seccion" id="muestras">
+<div class="seccion__header">
+<p class="seccion__eyebrow">Próximos shows</p>
+<h2 class="seccion__titulo">Muestras</h2>
+</div>
+<div class="muestras-lista">
+<article class="muestra-card muestra-card--imagen">
+<img src="Images/presentaciones en vivo.jpg" alt="Muestra de fin de semestre" class="muestra-card__foto">
+</article>
+<?php foreach ($presentaciones as $pres):
+$fecha = new DateTime($pres['día']);
+$meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+?>
+<article class="muestra-card">
+<div class="muestra-card__fecha">
+<span class="muestra-card__dia"><?php echo $fecha->format('d'); ?></span>
+<span class="muestra-card__mes"><?php echo $meses[(int)$fecha->format('n') - 1]; ?></span>
+</div>
+<div class="muestra-card__cuerpo">
+<?php if ($esAdmin): ?>
+  <form action="guardar.php" method="post" class="edit-inline">
+    <input type="hidden" name="tipo" value="presentacion">
+    <input type="hidden" name="id_presentacion" value="<?php echo $pres['id_presentacion']; ?>">
+    <input type="date" name="dia" value="<?php echo $pres['día']; ?>">
+    <input type="text" name="lugar" value="<?php echo htmlspecialchars($pres['lugar']); ?>">
+    <button type="submit" class="btn-guardar">Guardar</button>
+  </form>
+<?php else: ?>
+  <p class="muestra-card__lugar"><?php echo htmlspecialchars($pres['lugar']); ?></p>
+<?php endif; ?>
+<div class="muestra-card__repertorio">
+<p class="muestra-card__rep-titulo">Repertorio</p>
+<ul class="muestra-card__canciones">
+<?php foreach ($pres['canciones'] as $c): ?>
+<li>
+<span><?php echo htmlspecialchars($c['nombre_cancion']); ?></span>
+<span class="dur"><?php echo substr($c['duración'],3); ?></span>
+</li>
+<?php endforeach; ?>
+</ul>
+</div>
+</div>
+</article>
+<?php endforeach; ?>
+</div>
+</section>
+
+  <!-- ANOTARME -->
+  <section class="seccion seccion--rojo" id="anotarme">
+    <div class="seccion__header">
+      <p class="seccion__eyebrow seccion__eyebrow--claro">Sumate ahora</p>
+      <h2 class="seccion__titulo seccion__titulo--claro seccion__titulo--sans">Quiero anotarme</h2>
+    </div>
+
+    <div class="form-atr" id="form-atr">
+      <div class="form-atr__group">
+        <label class="form-atr__label" for="f-nombre">Nombre completo</label>
+        <input class="form-atr__input" id="f-nombre" type="text" placeholder="Tu nombre y apellido">
+      </div>
+      <div class="form-atr__group">
+        <label class="form-atr__label" for="f-dni">DNI</label>
+        <input class="form-atr__input" id="f-dni" type="text" inputmode="numeric" placeholder="Sin puntos">
+      </div>
+      <div class="form-atr__group">
+        <label class="form-atr__label" for="f-instrumento">Instrumento de interés</label>
+        <select class="form-atr__input form-atr__select" id="f-instrumento">
+          <option value="" disabled selected>Elegí un instrumento</option>
+          <?php foreach ($instrumentos as $id => $inst): ?>
+            <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($inst['nombre']); ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="form-atr__group">
+        <label class="form-atr__label" for="f-tel">WhatsApp (opcional)</label>
+        <input class="form-atr__input" id="f-tel" type="tel" inputmode="tel" placeholder="+54 11 ...">
+      </div>
+      <button class="form-atr__submit" id="form-submit">Enviar inscripción →</button>
+      <p class="form-atr__nota">Si aún no sos estudiante, te damos de alta automáticamente.</p>
+    </div>
+
+    <div class="form-exito" id="form-exito" hidden>
+      <div class="form-exito__icono">🎶</div>
+      <h3 class="form-exito__titulo">¡Listo!</h3>
+      <p class="form-exito__texto">Recibimos tu inscripción. Te contactamos por WhatsApp en las próximas 48 hs para confirmar tu lugar.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer" id="footer">
+    <div class="footer__top">
+      <span class="footer__brand">A Todo Ritmo</span>
+    </div>
+    <div class="footer__cols">
+      <div class="footer__col">
+        <p class="footer__col-titulo">Contacto</p>
+        <a class="footer__link" href="mailto:hola@atodoritmo.com.ar">hola@atodoritmo.com.ar</a>
+        <a class="footer__link" href="tel:+541100000000">+54 11 0000-0000</a>
+      </div>
+      <div class="footer__col">
+        <p class="footer__col-titulo">Ubicación</p>
+        <p class="footer__texto">Av. Corrientes 1234, piso 3<br>CABA, Argentina</p>
+      </div>
+      <div class="footer__col">
+        <p class="footer__col-titulo">Redes</p>
+        <a class="footer__link" href="#">Instagram</a>
+        <a class="footer__link" href="#">YouTube</a>
+        <a class="footer__link" href="#">TikTok</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p>© 2026 A Todo Ritmo — Escuela de música</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.querySelectorAll('.instrumento-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.getElementById('esp-instrumento').textContent = card.dataset.instrumento;
+        document.getElementById('esp-lista').textContent = card.dataset.profesores;
+        const panel = document.getElementById('especializar');
+        panel.hidden = false;
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
+    document.querySelector('.especializar__cerrar').addEventListener('click', () => {
+      document.getElementById('especializar').hidden = true;
+    });
+
+    const carrusel = document.querySelector('.profesores-carrusel');
+    const dotsContainer = document.getElementById('carrusel-dots');
+    const profCards = document.querySelectorAll('.profe-card');
+    if (carrusel && profCards.length) {
+      profCards.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'carrusel-dot' + (i === 0 ? ' carrusel-dot--activo' : '');
+        dot.setAttribute('aria-label', 'Profesor ' + (i + 1));
+        dot.addEventListener('click', () => {
+          profCards[i].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        });
+        dotsContainer.appendChild(dot);
+      });
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const idx = Array.from(profCards).indexOf(entry.target);
+            document.querySelectorAll('.carrusel-dot').forEach((d, i) => {
+              d.classList.toggle('carrusel-dot--activo', i === idx);
+            });
+          }
+        });
+      }, { root: carrusel, threshold: 0.6 });
+      profCards.forEach(c => obs.observe(c));
+    }
+
+    document.querySelectorAll('.filtro-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('filtro-btn--activo'));
+        btn.classList.add('filtro-btn--activo');
+        const dia = btn.dataset.dia;
+        document.querySelectorAll('.taller-row').forEach(fila => {
+          fila.style.display = (dia === 'todos' || fila.dataset.dia === dia) ? 'flex' : 'none';
+        });
+      });
+    });
+
+    document.getElementById('form-submit').addEventListener('click', () => {
+      const nombre = document.getElementById('f-nombre').value.trim();
+      const dni = document.getElementById('f-dni').value.trim();
+      const instrumento = document.getElementById('f-instrumento').value;
+      if (!nombre || !dni || !instrumento) {
+        alert('Por favor completá nombre, DNI e instrumento.');
+        return;
+      }
+      document.getElementById('form-atr').hidden = true;
+      document.getElementById('form-exito').hidden = false;
+    });
+  </script>
+</body>
+</html>
