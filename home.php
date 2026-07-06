@@ -82,6 +82,29 @@ while ($row = $res->fetch_assoc()) {
     if (isset($presentaciones[$row['id_presentacion']])) {
         $presentaciones[$row['id_presentacion']]['canciones'][] = $row;
     }
+
+    // Registros de interesados (solo para administrador)
+$registros = [];
+
+if ($esAdmin) {
+
+    $sql = "
+        SELECT
+            r.*,
+            i.nombre_de_instrumento
+        FROM registros r
+        JOIN instrumentos i
+            ON r.id_instrumentos = i.id_instrumentos
+        ORDER BY r.fecha_solicitud DESC
+    ";
+
+    $res = $conn->query($sql);
+
+    while ($row = $res->fetch_assoc()) {
+        $registros[] = $row;
+    }
+
+}
 }
 ?>
 <!DOCTYPE html>
@@ -364,38 +387,193 @@ $meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic
       <h2 class="seccion__titulo seccion__titulo--claro seccion__titulo--sans">Quiero anotarme</h2>
     </div>
 
-    <div class="form-atr" id="form-atr">
-      <div class="form-atr__group">
+    <form class="form-atr" id="form-atr" action="inscribir.php" method="POST">
+
+    <div class="form-atr__group">
         <label class="form-atr__label" for="f-nombre">Nombre completo</label>
-        <input class="form-atr__input" id="f-nombre" type="text" placeholder="Tu nombre y apellido">
-      </div>
-      <div class="form-atr__group">
-        <label class="form-atr__label" for="f-dni">DNI</label>
-        <input class="form-atr__input" id="f-dni" type="text" inputmode="numeric" placeholder="Sin puntos">
-      </div>
-      <div class="form-atr__group">
-        <label class="form-atr__label" for="f-instrumento">Instrumento de interés</label>
-        <select class="form-atr__input form-atr__select" id="f-instrumento">
-          <option value="" disabled selected>Elegí un instrumento</option>
-          <?php foreach ($instrumentos as $id => $inst): ?>
-            <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($inst['nombre']); ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-      <div class="form-atr__group">
-        <label class="form-atr__label" for="f-tel">WhatsApp (opcional)</label>
-        <input class="form-atr__input" id="f-tel" type="tel" inputmode="tel" placeholder="+54 11 ...">
-      </div>
-      <button class="form-atr__submit" id="form-submit">Enviar inscripción →</button>
-      <p class="form-atr__nota">Si aún no sos estudiante, te damos de alta automáticamente.</p>
+        <input
+            class="form-atr__input"
+            id="f-nombre"
+            name="nombre"
+            type="text"
+            placeholder="Tu nombre y apellido"
+            required>
     </div>
 
-    <div class="form-exito" id="form-exito" hidden>
-      <div class="form-exito__icono">🎶</div>
-      <h3 class="form-exito__titulo">¡Listo!</h3>
-      <p class="form-exito__texto">Recibimos tu inscripción. Te contactamos por WhatsApp en las próximas 48 hs para confirmar tu lugar.</p>
+    <div class="form-atr__group">
+        <label class="form-atr__label" for="f-dni">DNI</label>
+        <input
+            class="form-atr__input"
+            id="f-dni"
+            name="dni"
+            type="text"
+            inputmode="numeric"
+            placeholder="Sin puntos"
+            required>
     </div>
-  </section>
+
+    <div class="form-atr__group">
+        <label class="form-atr__label" for="f-instrumento">Instrumento de interés</label>
+
+        <select
+            class="form-atr__input form-atr__select"
+            id="f-instrumento"
+            name="instrumento"
+            required>
+
+            <option value="" disabled selected>Elegí un instrumento</option>
+
+            <?php foreach ($instrumentos as $id => $inst): ?>
+                <option value="<?php echo $id; ?>">
+                    <?php echo htmlspecialchars($inst['nombre']); ?>
+                </option>
+            <?php endforeach; ?>
+
+        </select>
+
+    </div>
+
+    <div class="form-atr__group">
+        <label class="form-atr__label" for="f-tel">WhatsApp (opcional)</label>
+
+        <input
+            class="form-atr__input"
+            id="f-tel"
+            name="whatsapp"
+            type="tel"
+            inputmode="tel"
+            placeholder="+54 11 ...">
+
+    </div>
+
+    <button
+        class="form-atr__submit"
+        id="form-submit"
+        type="submit">
+
+        Enviar inscripción →
+
+    </button>
+
+    <p class="form-atr__nota">
+        Si aún no sos estudiante, registraremos tus datos y nos comunicaremos con vos para coordinar el horario y el nivel musical.
+    </p>
+
+</form>
+
+    <?php if (isset($_GET['ok'])): ?>
+
+<div class="form-exito">
+
+    <div class="form-exito__icono">
+        🎶
+    </div>
+
+    <h3 class="form-exito__titulo">
+        ¡Listo!
+    </h3>
+
+    <p class="form-exito__texto">
+        Recibimos tu inscripción.
+        En las próximas 48 hs nos vamos a comunicar con vos por WhatsApp.
+    </p>
+
+</div>
+<?php if ($esAdmin): ?>
+
+<section class="seccion" id="registros">
+
+    <div class="seccion__header">
+        <p class="seccion__eyebrow">Administración</p>
+        <h2 class="seccion__titulo">Personas interesadas</h2>
+    </div>
+
+    <div class="row g-4">
+
+        <?php if (count($registros) > 0): ?>
+
+            <?php foreach ($registros as $registro): ?>
+
+                <div class="col-md-6 col-lg-4">
+
+                    <div class="card h-100 shadow-sm border-0">
+
+                        <div class="card-body">
+
+                            <h5 class="card-title">
+                                <?php echo htmlspecialchars($registro['nombre']); ?>
+                            </h5>
+
+                            <p class="mb-2">
+                                <strong>DNI:</strong><br>
+                                <?php echo htmlspecialchars($registro['dni']); ?>
+                            </p>
+
+                            <p class="mb-2">
+                                <strong>WhatsApp:</strong><br>
+                                <?php echo htmlspecialchars($registro['whatsapp']); ?>
+                            </p>
+
+                            <p class="mb-2">
+                                <strong>Instrumento:</strong><br>
+                                <?php echo htmlspecialchars($registro['nombre_de_instrumento']); ?>
+                            </p>
+
+                            <p class="mb-3">
+                                <strong>Fecha:</strong><br>
+                                <?php echo date("d/m/Y", strtotime($registro['fecha_solicitud'])); ?>
+                            </p>
+
+                            <?php if (!$registro['contactado']): ?>
+
+                                <span class="badge bg-warning text-dark mb-3">
+                                    Pendiente
+                                </span>
+
+                                <form action="guardar.php" method="POST">
+
+                                    <input type="hidden" name="tipo" value="contactado">
+
+                                    <input
+                                        type="hidden"
+                                        name="id_interesado"
+                                        value="<?php echo $registro['id_interesado']; ?>">
+
+                                    <button class="btn btn-success w-100">
+                                        ✓ Marcar como contactado
+                                    </button>
+
+                                </form>
+
+                            <?php else: ?>
+
+                                <span class="badge bg-success">
+                                    Contactado
+                                </span>
+
+                            <?php endif; ?>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            <?php endforeach; ?>
+
+        <?php else: ?>
+
+            <p>No hay registros todavía.</p>
+
+        <?php endif; ?>
+
+    </div>
+
+</section>
+
+<?php endif; ?>
+
+<?php endif; ?>
 
   <!-- FOOTER -->
   <footer class="footer" id="footer">
@@ -492,17 +670,18 @@ $meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic
       });
     });
 
-    document.getElementById('form-submit').addEventListener('click', () => {
-      const nombre = document.getElementById('f-nombre').value.trim();
-      const dni = document.getElementById('f-dni').value.trim();
-      const instrumento = document.getElementById('f-instrumento').value;
-      if (!nombre || !dni || !instrumento) {
+    document.getElementById('form-atr').addEventListener('submit', function (e) {
+
+    const nombre = document.getElementById('f-nombre').value.trim();
+    const dni = document.getElementById('f-dni').value.trim();
+    const instrumento = document.getElementById('f-instrumento').value;
+
+    if (!nombre || !dni || !instrumento) {
+        e.preventDefault();
         alert('Por favor completá nombre, DNI e instrumento.');
-        return;
-      }
-      document.getElementById('form-atr').hidden = true;
-      document.getElementById('form-exito').hidden = false;
-    });
+    }
+
+});
   </script>
 </body>
 </html>

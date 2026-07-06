@@ -78,6 +78,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['tipo'] === 'profesor_nuevo'
     $stmt->execute();
     $stmt->close();
 }
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['tipo'] === 'contactado') {
+
+    $id = $_POST['id_interesado'];
+
+    $stmt = $conn->prepare("
+        UPDATE registros
+        SET contactado = 1
+        WHERE id_interesado = ?
+    ");
+
+    $stmt->bind_param("i", $id);
+
+    $stmt->execute();
+
+    $stmt->close();
+}
 
 header("Location: home.php");
 exit;
