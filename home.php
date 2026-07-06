@@ -112,11 +112,11 @@ while ($row = $res->fetch_assoc()) {
           <li class="nav-item"><a class="nav-link" href="#talleres">Horarios</a></li>
           <li class="nav-item"><a class="nav-link" href="#muestras">Muestras</a></li>
           <li class="nav-item"><a class="nav-link" href="#anotarme">Anotarme</a></li>
-          <?php if ($esAdmin): ?>
-            <li class="nav-item"><a class="nav-link" href="logout.php">Salir (admin)</a></li>
-          <?php else: ?>
-            <li class="nav-item"><a class="nav-link" href="index.php">Acceso admin</a></li>
-          <?php endif; ?>
+          <?php if (isset($_SESSION['dni_estudiante'])): ?>
+  <li class="nav-item"><a class="nav-link" href="mi_panel.php">Mi panel</a></li>
+<?php else: ?>
+  <li class="nav-item"><a class="nav-link" href="login_estudiante.php">Iniciar sesión</a></li>
+<?php endif; ?>
         </ul>
       </div>
     </div>
@@ -129,11 +129,16 @@ while ($row = $res->fetch_assoc()) {
     </div>
     <div class="offcanvas-body">
       <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link" data-bs-dismiss="offcanvas" href="#instrumentos">Instrumentos<small>Elegí qué tocar</small></a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-dismiss="offcanvas" href="#profesores">Profesores<small>Quién te enseña</small></a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-dismiss="offcanvas" href="#talleres">Horarios<small>Talleres por día</small></a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-dismiss="offcanvas" href="#muestras">Muestras<small>Próximos shows</small></a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-dismiss="offcanvas" href="#anotarme">Anotarme<small>Sumate ahora</small></a></li>
+        <li class="nav-item"><a class="nav-link" href="#instrumentos">Instrumentos<small>Elegí qué tocar</small></a></li>
+        <li class="nav-item"><a class="nav-link" href="#profesores">Profesores<small>Quién te enseña</small></a></li>
+        <li class="nav-item"><a class="nav-link" href="#talleres">Horarios<small>Talleres por día</small></a></li>
+        <li class="nav-item"><a class="nav-link" href="#muestras">Muestras<small>Próximos shows</small></a></li>
+        <li class="nav-item"><a class="nav-link" href="#anotarme">Anotarme<small>Sumate ahora</small></a></li>
+        <?php if (isset($_SESSION['dni_estudiante'])): ?>
+          <li class="nav-item"><a class="nav-link" href="mi_panel.php">Mi panel</a></li>
+        <?php else: ?>
+          <li class="nav-item"><a class="nav-link" href="login_estudiante.php">Iniciar sesión</a></li>
+        <?php endif; ?>
       </ul>
     </div>
   </div>
@@ -360,6 +365,14 @@ $meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic
         <a class="footer__link" href="#">YouTube</a>
         <a class="footer__link" href="#">TikTok</a>
       </div>
+      <div class="footer__col">
+        <p class="footer__col-titulo">Staff</p>
+        <?php if ($esAdmin): ?>
+          <a class="footer__link" href="logout.php">Salir (admin)</a>
+        <?php else: ?>
+          <a class="footer__link" href="index.php">Acceso admin</a>
+        <?php endif; ?>
+      </div>
     </div>
     <div class="footer__bottom">
       <p>© 2026 A Todo Ritmo — Escuela de música</p>
@@ -368,6 +381,14 @@ $meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    document.querySelectorAll('#navOffcanvas .nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        const offcanvasEl = document.getElementById('navOffcanvas');
+        const instancia = bootstrap.Offcanvas.getInstance(offcanvasEl);
+        if (instancia) instancia.hide();
+      });
+    });
+
     document.querySelectorAll('.instrumento-card').forEach(card => {
       card.addEventListener('click', () => {
         document.getElementById('esp-instrumento').textContent = card.dataset.instrumento;

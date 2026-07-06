@@ -21,7 +21,8 @@ if (estaLogueado()) {
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <section class="seccion seccion--rojo" style="min-height:100vh; display:flex; align-items:center; justify-content:center;">
+    <section class="seccion seccion--rojo" style="min-height:100vh; display:flex; align-items:center; justify-content:center; position:relative;">
+        <a href="home.php" style="position:absolute; top:20px; left:20px; color:var(--crema); font-size:24px; z-index:10;" aria-label="Volver al sitio">←</a>
         <div style="width:100%; max-width:400px;">
             <div class="seccion__header">
                 <p class="seccion__eyebrow seccion__eyebrow--claro">Acceso interno</p>
