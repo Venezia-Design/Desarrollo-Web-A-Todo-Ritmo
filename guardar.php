@@ -95,5 +95,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['tipo'] === 'contactado') {
     $stmt->close();
 }
 
-header("Location: home.php");
+// Redirigir a la sección correspondiente según la acción
+$anclas = [
+    'profesor'           => '#profesores',
+    'profesor_nuevo'     => '#profesores',
+    'taller'             => '#talleres',
+    'taller_nuevo'       => '#talleres',
+    'presentacion'       => '#muestras',
+    'presentacion_nueva' => '#muestras',
+    'contactado'         => '#registros',
+];
+
+$tipo   = $_POST['tipo'] ?? '';
+$ancla  = $anclas[$tipo] ?? '';
+
+header("Location: home.php" . $ancla);
 exit;

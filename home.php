@@ -82,12 +82,12 @@ while ($row = $res->fetch_assoc()) {
     if (isset($presentaciones[$row['id_presentacion']])) {
         $presentaciones[$row['id_presentacion']]['canciones'][] = $row;
     }
+}
 
-    // Registros de interesados (solo para administrador)
+// Registros de interesados (solo para administrador)
 $registros = [];
 
 if ($esAdmin) {
-
     $sql = "
         SELECT
             r.*,
@@ -103,8 +103,6 @@ if ($esAdmin) {
     while ($row = $res->fetch_assoc()) {
         $registros[] = $row;
     }
-
-}
 }
 ?>
 <!DOCTYPE html>
@@ -134,14 +132,18 @@ if ($esAdmin) {
           <li class="nav-item"><a class="nav-link" href="#profesores">Profesores</a></li>
           <li class="nav-item"><a class="nav-link" href="#talleres">Horarios</a></li>
           <li class="nav-item"><a class="nav-link" href="#muestras">Muestras</a></li>
-          <li class="nav-item"><a class="nav-link" href="#anotarme">Anotarme</a></li>
-        <?php if (!$esAdmin): ?>
-  <?php if (isset($_SESSION['dni_estudiante'])): ?>
-    <li class="nav-item"><a class="nav-link" href="mi_panel.php">Mi panel</a></li>
-  <?php else: ?>
-    <li class="nav-item"><a class="nav-link" href="login_estudiante.php">Iniciar sesión</a></li>
-  <?php endif; ?>
-<?php endif; ?>
+          <?php if ($esAdmin): ?>
+            <li class="nav-item"><a class="nav-link" href="#registros">Interesados</a></li>
+          <?php else: ?>
+            <li class="nav-item"><a class="nav-link" href="#anotarme">Anotarme</a></li>
+          <?php endif; ?>
+          <?php if (!$esAdmin): ?>
+            <?php if (isset($_SESSION['dni_estudiante'])): ?>
+              <li class="nav-item"><a class="nav-link" href="mi_panel.php">Mi panel</a></li>
+            <?php else: ?>
+              <li class="nav-item"><a class="nav-link" href="login_estudiante.php">Iniciar sesión</a></li>
+            <?php endif; ?>
+          <?php endif; ?>
         </ul>
       </div>
     </div>
@@ -158,14 +160,18 @@ if ($esAdmin) {
         <li class="nav-item"><a class="nav-link" href="#profesores">Profesores<small>Quién te enseña</small></a></li>
         <li class="nav-item"><a class="nav-link" href="#talleres">Horarios<small>Talleres por día</small></a></li>
         <li class="nav-item"><a class="nav-link" href="#muestras">Muestras<small>Próximos shows</small></a></li>
-        <li class="nav-item"><a class="nav-link" href="#anotarme">Anotarme<small>Sumate ahora</small></a></li>
+        <?php if ($esAdmin): ?>
+          <li class="nav-item"><a class="nav-link" href="#registros">Interesados<small>Personas anotadas</small></a></li>
+        <?php else: ?>
+          <li class="nav-item"><a class="nav-link" href="#anotarme">Anotarme<small>Sumate ahora</small></a></li>
+        <?php endif; ?>
         <?php if (!$esAdmin): ?>
-  <?php if (isset($_SESSION['dni_estudiante'])): ?>
-    <li class="nav-item"><a class="nav-link" href="mi_panel.php">Mi panel</a></li>
-  <?php else: ?>
-    <li class="nav-item"><a class="nav-link" href="login_estudiante.php">Iniciar sesión</a></li>
-  <?php endif; ?>
-<?php endif; ?>
+          <?php if (isset($_SESSION['dni_estudiante'])): ?>
+            <li class="nav-item"><a class="nav-link" href="mi_panel.php">Mi panel</a></li>
+          <?php else: ?>
+            <li class="nav-item"><a class="nav-link" href="login_estudiante.php">Iniciar sesión</a></li>
+          <?php endif; ?>
+        <?php endif; ?>
       </ul>
     </div>
   </div>
@@ -380,7 +386,8 @@ $meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic
 </div>
 </section>
 
-  <!-- ANOTARME -->
+  <!-- ANOTARME: solo visible para usuarios normales -->
+  <?php if (!$esAdmin): ?>
   <section class="seccion seccion--rojo" id="anotarme">
     <div class="seccion__header">
       <p class="seccion__eyebrow seccion__eyebrow--claro">Sumate ahora</p>
@@ -462,118 +469,94 @@ $meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic
 </form>
 
     <?php if (isset($_GET['ok'])): ?>
+      <div class="form-exito">
+        <div class="form-exito__icono">🎶</div>
+        <h3 class="form-exito__titulo">¡Listo!</h3>
+        <p class="form-exito__texto">
+          Recibimos tu inscripción.
+          En las próximas 48 hs nos vamos a comunicar con vos por WhatsApp.
+        </p>
+      </div>
+    <?php endif; ?>
 
-<div class="form-exito">
+  </section>
+  <?php endif; /* fin !$esAdmin — formulario Anotarme */ ?>
 
-    <div class="form-exito__icono">
-        🎶
-    </div>
-
-    <h3 class="form-exito__titulo">
-        ¡Listo!
-    </h3>
-
-    <p class="form-exito__texto">
-        Recibimos tu inscripción.
-        En las próximas 48 hs nos vamos a comunicar con vos por WhatsApp.
-    </p>
-
-</div>
-<?php if ($esAdmin): ?>
-
-<section class="seccion" id="registros">
+  <!-- REGISTROS DE INTERESADOS: solo visible para administrador -->
+  <?php if ($esAdmin): ?>
+  <section class="seccion seccion--rojo" id="registros">
 
     <div class="seccion__header">
-        <p class="seccion__eyebrow">Administración</p>
-        <h2 class="seccion__titulo">Personas interesadas</h2>
+      <p class="seccion__eyebrow">Administración</p>
+      <h2 class="seccion__titulo">Personas interesadas</h2>
     </div>
 
     <div class="row g-4">
 
-        <?php if (count($registros) > 0): ?>
+      <?php if (count($registros) > 0): ?>
 
-            <?php foreach ($registros as $registro): ?>
+        <?php foreach ($registros as $registro): ?>
 
-                <div class="col-md-6 col-lg-4">
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border-0">
+              <div class="card-body">
 
-                    <div class="card h-100 shadow-sm border-0">
+                <h5 class="card-title">
+                  <?php echo htmlspecialchars($registro['nombre']); ?>
+                </h5>
 
-                        <div class="card-body">
+                <p class="mb-2">
+                  <strong>DNI:</strong><br>
+                  <?php echo htmlspecialchars($registro['dni']); ?>
+                </p>
 
-                            <h5 class="card-title">
-                                <?php echo htmlspecialchars($registro['nombre']); ?>
-                            </h5>
+                <p class="mb-2">
+                  <strong>WhatsApp:</strong><br>
+                  <?php echo htmlspecialchars($registro['whatsapp']); ?>
+                </p>
 
-                            <p class="mb-2">
-                                <strong>DNI:</strong><br>
-                                <?php echo htmlspecialchars($registro['dni']); ?>
-                            </p>
+                <p class="mb-2">
+                  <strong>Instrumento:</strong><br>
+                  <?php echo htmlspecialchars($registro['nombre_de_instrumento']); ?>
+                </p>
 
-                            <p class="mb-2">
-                                <strong>WhatsApp:</strong><br>
-                                <?php echo htmlspecialchars($registro['whatsapp']); ?>
-                            </p>
+                <p class="mb-3">
+                  <strong>Fecha:</strong><br>
+                  <?php echo date("d/m/Y", strtotime($registro['fecha_solicitud'])); ?>
+                </p>
 
-                            <p class="mb-2">
-                                <strong>Instrumento:</strong><br>
-                                <?php echo htmlspecialchars($registro['nombre_de_instrumento']); ?>
-                            </p>
+                <?php if (!$registro['contactado']): ?>
 
-                            <p class="mb-3">
-                                <strong>Fecha:</strong><br>
-                                <?php echo date("d/m/Y", strtotime($registro['fecha_solicitud'])); ?>
-                            </p>
+                  <span class="badge bg-warning text-dark mb-3">Pendiente</span>
 
-                            <?php if (!$registro['contactado']): ?>
+                  <form action="guardar.php" method="POST">
+                    <input type="hidden" name="tipo" value="contactado">
+                    <input type="hidden" name="id_interesado" value="<?php echo $registro['id_interesado']; ?>">
+                    <button class="btn btn-success w-100">✓ Marcar como contactado</button>
+                  </form>
 
-                                <span class="badge bg-warning text-dark mb-3">
-                                    Pendiente
-                                </span>
+                <?php else: ?>
 
-                                <form action="guardar.php" method="POST">
+                  <span class="badge bg-success">Contactado ✓</span>
 
-                                    <input type="hidden" name="tipo" value="contactado">
+                <?php endif; ?>
 
-                                    <input
-                                        type="hidden"
-                                        name="id_interesado"
-                                        value="<?php echo $registro['id_interesado']; ?>">
+              </div>
+            </div>
+          </div>
 
-                                    <button class="btn btn-success w-100">
-                                        ✓ Marcar como contactado
-                                    </button>
+        <?php endforeach; ?>
 
-                                </form>
+      <?php else: ?>
 
-                            <?php else: ?>
+        <p>No hay registros todavía.</p>
 
-                                <span class="badge bg-success">
-                                    Contactado
-                                </span>
-
-                            <?php endif; ?>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            <?php endforeach; ?>
-
-        <?php else: ?>
-
-            <p>No hay registros todavía.</p>
-
-        <?php endif; ?>
+      <?php endif; ?>
 
     </div>
 
-</section>
-
-<?php endif; ?>
-
-<?php endif; ?>
+  </section>
+  <?php endif; /* fin $esAdmin — registros */ ?>
 
   <!-- FOOTER -->
   <footer class="footer" id="footer">
