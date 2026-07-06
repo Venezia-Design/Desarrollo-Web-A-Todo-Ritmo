@@ -112,10 +112,12 @@ while ($row = $res->fetch_assoc()) {
           <li class="nav-item"><a class="nav-link" href="#talleres">Horarios</a></li>
           <li class="nav-item"><a class="nav-link" href="#muestras">Muestras</a></li>
           <li class="nav-item"><a class="nav-link" href="#anotarme">Anotarme</a></li>
-          <?php if (isset($_SESSION['dni_estudiante'])): ?>
-  <li class="nav-item"><a class="nav-link" href="mi_panel.php">Mi panel</a></li>
-<?php else: ?>
-  <li class="nav-item"><a class="nav-link" href="login_estudiante.php">Iniciar sesión</a></li>
+        <?php if (!$esAdmin): ?>
+  <?php if (isset($_SESSION['dni_estudiante'])): ?>
+    <li class="nav-item"><a class="nav-link" href="mi_panel.php">Mi panel</a></li>
+  <?php else: ?>
+    <li class="nav-item"><a class="nav-link" href="login_estudiante.php">Iniciar sesión</a></li>
+  <?php endif; ?>
 <?php endif; ?>
         </ul>
       </div>
@@ -134,11 +136,13 @@ while ($row = $res->fetch_assoc()) {
         <li class="nav-item"><a class="nav-link" href="#talleres">Horarios<small>Talleres por día</small></a></li>
         <li class="nav-item"><a class="nav-link" href="#muestras">Muestras<small>Próximos shows</small></a></li>
         <li class="nav-item"><a class="nav-link" href="#anotarme">Anotarme<small>Sumate ahora</small></a></li>
-        <?php if (isset($_SESSION['dni_estudiante'])): ?>
-          <li class="nav-item"><a class="nav-link" href="mi_panel.php">Mi panel</a></li>
-        <?php else: ?>
-          <li class="nav-item"><a class="nav-link" href="login_estudiante.php">Iniciar sesión</a></li>
-        <?php endif; ?>
+        <?php if (!$esAdmin): ?>
+  <?php if (isset($_SESSION['dni_estudiante'])): ?>
+    <li class="nav-item"><a class="nav-link" href="mi_panel.php">Mi panel</a></li>
+  <?php else: ?>
+    <li class="nav-item"><a class="nav-link" href="login_estudiante.php">Iniciar sesión</a></li>
+  <?php endif; ?>
+<?php endif; ?>
       </ul>
     </div>
   </div>
@@ -211,6 +215,27 @@ $iniciales = mb_strtoupper(mb_substr($p['nombre'],0,1) . mb_substr($p['apellido'
 </article>
 <?php endforeach; ?>
 </div>
+
+<?php if ($esAdmin): ?>
+<div class="profe-card profe-card--nuevo" style="margin-top:24px;">
+  <p class="muestra-card__rep-titulo" style="margin-bottom:10px;">Agregar nuevo profesor</p>
+  <form action="guardar.php" method="post" class="edit-inline">
+    <input type="hidden" name="tipo" value="profesor_nuevo">
+    <input type="number" name="dni_profesor" placeholder="DNI" required>
+    <input type="text" name="nombre" placeholder="Nombre" required>
+    <input type="text" name="apellido" placeholder="Apellido" required>
+    <select name="id_instrumentos" required>
+      <option value="" disabled selected>Instrumento</option>
+      <?php foreach ($instrumentos as $id => $inst): ?>
+        <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($inst['nombre']); ?></option>
+      <?php endforeach; ?>
+    </select>
+    <textarea name="biografia" placeholder="Biografía (opcional)"></textarea>
+    <button type="submit" class="btn-guardar">Agregar profesor</button>
+  </form>
+</div>
+<?php endif; ?>
+
 <div class="carrusel-dots" id="carrusel-dots" aria-hidden="true"></div>
 </section>
 
@@ -253,6 +278,34 @@ $iniciales = mb_strtoupper(mb_substr($p['nombre'],0,1) . mb_substr($p['apellido'
 <?php endif; ?>
 </div>
 <?php endforeach; ?>
+
+<?php if ($esAdmin): ?>
+<div class="taller-row taller-row--nuevo">
+  <form action="guardar.php" method="post" class="edit-inline">
+    <input type="hidden" name="tipo" value="taller_nuevo">
+    <input type="text" name="nombre_taller" placeholder="Nombre del taller" required>
+    <select name="dia_de_la_semana" required>
+      <option value="" disabled selected>Día</option>
+      <option value="Lunes">Lunes</option>
+      <option value="Martes">Martes</option>
+      <option value="Miércoles">Miércoles</option>
+      <option value="Jueves">Jueves</option>
+      <option value="Viernes">Viernes</option>
+      <option value="Sábado">Sábado</option>
+    </select>
+    <input type="time" name="hora_de_inicio" required>
+    <input type="time" name="hora_de_finalizacion" required>
+    <select name="dni_profesor" required>
+      <option value="" disabled selected>Profesor</option>
+      <?php foreach ($profesores as $dni => $p): ?>
+        <option value="<?php echo $dni; ?>"><?php echo htmlspecialchars($p['nombre'] . ' ' . $p['apellido']); ?></option>
+      <?php endforeach; ?>
+    </select>
+    <button type="submit" class="btn-guardar">Agregar taller</button>
+  </form>
+</div>
+<?php endif; ?>
+
 </div>
 </section>
 

@@ -1,10 +1,10 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
+ 
 include 'conn.php';
 include 'log.php';
-
+ 
 if (estaLogueado()) {
     header("Location: home.php");
     exit;
@@ -22,7 +22,7 @@ if (estaLogueado()) {
 </head>
 <body>
     <section class="seccion seccion--rojo" style="min-height:100vh; display:flex; align-items:center; justify-content:center; position:relative;">
-        <a href="home.php" style="position:absolute; top:20px; left:20px; color:var(--crema); font-size:24px; z-index:10;" aria-label="Volver al sitio">←</a>
+        <a href="home.php" style="position:absolute; top:24px; left:24px; color:var(--crema); font-size:42px; line-height:1; z-index:10;" aria-label="Volver al sitio">←</a>
         <div style="width:100%; max-width:400px;">
             <div class="seccion__header">
                 <p class="seccion__eyebrow seccion__eyebrow--claro">Acceso interno</p>

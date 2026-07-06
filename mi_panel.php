@@ -1,13 +1,13 @@
 <?php
 include 'conn.php';
-
+ 
 if (!isset($_SESSION['dni_estudiante'])) {
     header("Location: login_estudiante.php");
     exit;
 }
-
+ 
 $dni = $_SESSION['dni_estudiante'];
-
+ 
 // Talleres en los que está inscripto (tabla asistir)
 $misTalleres = [];
 $sql = "
@@ -26,7 +26,7 @@ while ($row = $res->fetch_assoc()) {
     $misTalleres[] = $row;
 }
 $stmt->close();
-
+ 
 // Presentaciones en las que participa (tabla participacion)
 $misPresentaciones = [];
 $sql = "
@@ -55,7 +55,7 @@ $stmt->close();
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
+ 
   <nav class="navbar navbar-expand-md navbar-atr sticky-top">
     <div class="container-fluid px-4 px-md-5">
       <a class="navbar-brand" href="home.php">A Todo Ritmo</a>
@@ -65,13 +65,13 @@ $stmt->close();
       </ul>
     </div>
   </nav>
-
+ 
   <section class="seccion" id="mi-panel">
     <div class="seccion__header">
       <p class="seccion__eyebrow">Hola, <?php echo htmlspecialchars($_SESSION['nombre_estudiante']); ?></p>
      <h2 class="seccion__titulo seccion__titulo--sans">Mi panel
      </h2>
-
+ 
     <h3 style="margin-bottom:16px;">Mis talleres</h3>
     <div class="talleres-lista" style="margin-bottom:48px;">
       <?php if (empty($misTalleres)): ?>
@@ -91,7 +91,7 @@ $stmt->close();
         <?php endforeach; ?>
       <?php endif; ?>
     </div>
-
+ 
     <h3 style="margin-bottom:16px;">Mis presentaciones</h3>
     <div class="muestras-lista">
       <?php if (empty($misPresentaciones)): ?>
@@ -113,8 +113,7 @@ $stmt->close();
       <?php endif; ?>
     </div>
   </section>
-
-  <?php include 'footer.php'; ?>
-
+ 
+ 
 </body>
 </html>
