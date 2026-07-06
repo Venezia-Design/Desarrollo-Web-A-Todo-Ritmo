@@ -22,7 +22,7 @@ if (isset($_SESSION['dni_estudiante'])) {
         <a href="home.php" style="position:absolute; top:24px; left:24px; color:var(--crema); font-size:42px; line-height:1; z-index:10;" aria-label="Volver al sitio">←</a>
         <div style="width:100%; max-width:400px;">
             <div class="seccion__header">
-                <p class="seccion__eyebrow seccion__eyebrow--claro">Alumnos</p>
+                <p class="seccion__eyebrow seccion__eyebrow--claro">Alumnos y profesores</p>
                 <h2 class="seccion__titulo seccion__titulo--claro seccion__titulo--sans">Mi cuenta</h2>
             </div>
             <form class="form-atr" action="" method="POST">
