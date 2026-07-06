@@ -1,13 +1,13 @@
 <?php
 include 'conn.php';
- 
+
 if (!isset($_SESSION['dni_estudiante'])) {
     header("Location: login_estudiante.php");
     exit;
 }
- 
+
 $dni = $_SESSION['dni_estudiante'];
- 
+
 // Talleres en los que está inscripto (tabla asistir)
 $misTalleres = [];
 $sql = "
@@ -26,7 +26,27 @@ while ($row = $res->fetch_assoc()) {
     $misTalleres[] = $row;
 }
 $stmt->close();
- 
+
+// Talleres disponibles (a los que el alumno NO está anotado todavía)
+$talleresDisponibles = [];
+$sql = "
+    SELECT t.nro_comision, t.nombre_taller, t.dia_de_la_semana, t.hora_de_inicio, t.hora_de_finalizacion,
+           CONCAT(p.nombre, ' ', p.apellido) AS profe
+    FROM talleres t
+    JOIN profesores p ON p.dni_profesor = t.dni_profesor
+    WHERE t.nro_comision NOT IN (
+        SELECT nro_comision FROM asistir WHERE dni_estudiante = ?
+    )
+";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $dni);
+$stmt->execute();
+$res = $stmt->get_result();
+while ($row = $res->fetch_assoc()) {
+    $talleresDisponibles[] = $row;
+}
+$stmt->close();
+
 // Presentaciones en las que participa (tabla participacion)
 $misPresentaciones = [];
 $sql = "
@@ -55,7 +75,11 @@ $stmt->close();
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
- 
+
+  <?php if (isset($_GET['inscripto'])): ?>
+    <div class="aviso-exito">🎶 ¡Listo! Quedaste inscripta en el taller.</div>
+  <?php endif; ?>
+
   <nav class="navbar navbar-expand-md navbar-atr sticky-top">
     <div class="container-fluid px-4 px-md-5">
       <a class="navbar-brand" href="home.php">A Todo Ritmo</a>
@@ -65,13 +89,13 @@ $stmt->close();
       </ul>
     </div>
   </nav>
- 
+
   <section class="seccion" id="mi-panel">
     <div class="seccion__header">
       <p class="seccion__eyebrow">Hola, <?php echo htmlspecialchars($_SESSION['nombre_estudiante']); ?></p>
-     <h2 class="seccion__titulo seccion__titulo--sans">Mi panel
-     </h2>
- 
+      <h2 class="seccion__titulo seccion__titulo--sans">Mi panel</h2>
+    </div>
+
     <h3 style="margin-bottom:16px;">Mis talleres</h3>
     <div class="talleres-lista" style="margin-bottom:48px;">
       <?php if (empty($misTalleres)): ?>
@@ -91,7 +115,29 @@ $stmt->close();
         <?php endforeach; ?>
       <?php endif; ?>
     </div>
- 
+    
+
+    <h3 style="margin-bottom:16px;">Talleres disponibles</h3>
+    <div class="talleres-lista" style="margin-bottom:48px;">
+      <?php if (empty($talleresDisponibles)): ?>
+        <p>Ya estás anotada en todos los talleres disponibles.</p>
+      <?php else: ?>
+        <?php foreach ($talleresDisponibles as $t): ?>
+          <div class="taller-row">
+            <div class="taller-row__dia"><?php echo htmlspecialchars(mb_substr($t['dia_de_la_semana'],0,3)); ?></div>
+            <div class="taller-row__info">
+              <p class="taller-row__nombre"><?php echo htmlspecialchars($t['nombre_taller']); ?></p>
+              <p class="taller-row__detalle"><?php echo htmlspecialchars($t['profe']); ?></p>
+            </div>
+            <form action="inscribir_taller.php" method="post">
+              <input type="hidden" name="nro_comision" value="<?php echo $t['nro_comision']; ?>">
+              <button type="submit" class="btn-guardar">Inscribirme</button>
+            </form>
+          </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
+    </div>
+
     <h3 style="margin-bottom:16px;">Mis presentaciones</h3>
     <div class="muestras-lista">
       <?php if (empty($misPresentaciones)): ?>
@@ -113,7 +159,6 @@ $stmt->close();
       <?php endif; ?>
     </div>
   </section>
- 
- 
+
 </body>
 </html>
