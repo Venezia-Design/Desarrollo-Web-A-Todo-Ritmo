@@ -35,6 +35,17 @@ function imagenInstrumento($nombre) {
     return 'Mesa de trabajo 8.png';
 }
 
+// Sonido por instrumento (archivos en /sonidos/)
+function sonidoInstrumento($nombre) {
+    $n = mb_strtolower($nombre);
+    if (str_contains($n, 'piano'))                               return 'sonido_piano.mp3';
+    if (str_contains($n, 'guitarra'))                            return 'sonido_guitarra.mp3';
+    if (str_contains($n, 'bajo'))                                return 'sonido_bajo.wav';
+    if (str_contains($n, 'violin') || str_contains($n, 'violín')) return 'sonido_violin.wav';
+    if (str_contains($n, 'bater') || str_contains($n, 'bateri')) return 'sonido_bateria.wav';
+    if (str_contains($n, 'canto') || str_contains($n, 'micro')) return 'sonido_microfono.wav';
+}
+
 // Profesores con sus instrumentos
 $profesores = [];
 $res = $conn->query("SELECT dni_profesor, nombre, apellido, Biografia FROM profesores");
@@ -196,9 +207,11 @@ if ($esAdmin) {
 
     <div class="instrumentos-grid">
       <?php foreach ($instrumentos as $inst): ?>
+        <?php $sonido = sonidoInstrumento($inst['nombre']); ?>
         <button class="instrumento-card"
                 data-instrumento="<?php echo htmlspecialchars($inst['nombre']); ?>"
-                data-profesores="<?php echo htmlspecialchars(implode(', ', $inst['profesores'])); ?>">
+                data-profesores="<?php echo htmlspecialchars(implode(', ', $inst['profesores'])); ?>"
+                <?php if ($sonido): ?>data-sonido="sonidos/<?php echo $sonido; ?>"<?php endif; ?>>
           <img src="Images/<?php echo imagenInstrumento($inst['nombre']); ?>"
                alt="<?php echo htmlspecialchars($inst['nombre']); ?>"
                class="instrumento-card__imagen">
@@ -666,5 +679,29 @@ $meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic
 
 });
   </script>
+
+  <!-- Sonidos de instrumentos -->
+  <script>
+    (function () {
+      const cache = {};
+
+      document.querySelectorAll('.instrumento-card[data-sonido]').forEach(card => {
+        const src = card.dataset.sonido;
+        const audio = new Audio(src);
+        audio.preload = 'auto';
+        cache[src] = audio;
+      });
+
+      document.querySelectorAll('.instrumento-card[data-sonido]').forEach(card => {
+        card.addEventListener('click', () => {
+          const audio = cache[card.dataset.sonido];
+          if (!audio) return;
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        });
+      });
+    })();
+  </script>
+
 </body>
 </html>
