@@ -1,5 +1,12 @@
 <?php
 include 'conn.php';
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
+
+$erroresForm = $_SESSION['errores_form'] ?? [];
+$datosForm = $_SESSION['datos_form'] ?? [];
+unset($_SESSION['errores_form'], $_SESSION['datos_form']);
 
 $esAdmin = isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador';
 
@@ -410,60 +417,70 @@ $meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic
     <form class="form-atr" id="form-atr" action="inscribir.php" method="POST">
 
     <div class="form-atr__group">
-        <label class="form-atr__label" for="f-nombre">Nombre completo</label>
+    <label class="form-atr__label" for="f-nombre">Nombre completo</label>
+    <input
+        class="form-atr__input<?php echo isset($erroresForm['nombre']) ? ' form-atr__input--error' : ''; ?>"
+        id="f-nombre"
+        name="nombre"
+        type="text"
+        placeholder="Tu nombre y apellido"
+        value="<?php echo htmlspecialchars($datosForm['nombre'] ?? ''); ?>">
+    <?php if (isset($erroresForm['nombre'])): ?>
+        <p class="form-atr__advertencia"><?php echo htmlspecialchars($erroresForm['nombre']); ?></p>
+    <?php endif; ?>
+</div>
+
+<div class="form-atr__group">
+    <label class="form-atr__label" for="f-dni">DNI</label>
+    <input
+        class="form-atr__input<?php echo isset($erroresForm['dni']) ? ' form-atr__input--error' : ''; ?>"
+        id="f-dni"
+        name="dni"
+        type="text"
+        inputmode="numeric"
+        placeholder="Sin puntos"
+        value="<?php echo htmlspecialchars($datosForm['dni'] ?? ''); ?>">
+    <?php if (isset($erroresForm['dni'])): ?>
+        <p class="form-atr__advertencia"><?php echo htmlspecialchars($erroresForm['dni']); ?></p>
+    <?php endif; ?>
+</div>
+
+<div class="form-atr__group">
+    <label class="form-atr__label" for="f-instrumento">Instrumento de interés</label>
+    <select
+        class="form-atr__input form-atr__select<?php echo isset($erroresForm['instrumento']) ? ' form-atr__input--error' : ''; ?>"
+        id="f-instrumento"
+        name="instrumento">
+
+        <option value="" disabled <?php echo empty($datosForm['instrumento']) ? 'selected' : ''; ?>>Elegí un instrumento</option>
+
+        <?php foreach ($instrumentos as $id => $inst): ?>
+            <option value="<?php echo $id; ?>" <?php echo (isset($datosForm['instrumento']) && (string)$datosForm['instrumento'] === (string)$id) ? 'selected' : ''; ?>>
+                <?php echo htmlspecialchars($inst['nombre']); ?>
+            </option>
+        <?php endforeach; ?>
+
+    </select>
+    <?php if (isset($erroresForm['instrumento'])): ?>
+        <p class="form-atr__advertencia"><?php echo htmlspecialchars($erroresForm['instrumento']); ?></p>
+    <?php endif; ?>
+</div>
+
+<div class="form-atr__group">
+        <label class="form-atr__label" for="f-tel">WhatsApp</label>
+
         <input
-            class="form-atr__input"
-            id="f-nombre"
-            name="nombre"
-            type="text"
-            placeholder="Tu nombre y apellido"
-            required>
-    </div>
-
-    <div class="form-atr__group">
-        <label class="form-atr__label" for="f-dni">DNI</label>
-        <input
-            class="form-atr__input"
-            id="f-dni"
-            name="dni"
-            type="text"
-            inputmode="numeric"
-            placeholder="Sin puntos"
-            required>
-    </div>
-
-    <div class="form-atr__group">
-        <label class="form-atr__label" for="f-instrumento">Instrumento de interés</label>
-
-        <select
-            class="form-atr__input form-atr__select"
-            id="f-instrumento"
-            name="instrumento"
-            required>
-
-            <option value="" disabled selected>Elegí un instrumento</option>
-
-            <?php foreach ($instrumentos as $id => $inst): ?>
-                <option value="<?php echo $id; ?>">
-                    <?php echo htmlspecialchars($inst['nombre']); ?>
-                </option>
-            <?php endforeach; ?>
-
-        </select>
-
-    </div>
-
-    <div class="form-atr__group">
-        <label class="form-atr__label" for="f-tel">WhatsApp (opcional)</label>
-
-        <input
-            class="form-atr__input"
+            class="form-atr__input<?php echo isset($erroresForm['whatsapp']) ? ' form-atr__input--error' : ''; ?>"
             id="f-tel"
             name="whatsapp"
             type="tel"
             inputmode="tel"
-            placeholder="+54 11 ...">
+            placeholder="+54 11 ..."
+            value="<?php echo htmlspecialchars($datosForm['whatsapp'] ?? ''); ?>">
 
+        <?php if (isset($erroresForm['whatsapp'])): ?>
+            <p class="form-atr__advertencia"><?php echo htmlspecialchars($erroresForm['whatsapp']); ?></p>
+        <?php endif; ?>
     </div>
 
     <button
@@ -634,20 +651,7 @@ $meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic
       });
     });
 
-    document.getElementById('form-atr').addEventListener('submit', function (e) {
-
-    const nombre = document.getElementById('f-nombre').value.trim();
-    const dni = document.getElementById('f-dni').value.trim();
-    const instrumento = document.getElementById('f-instrumento').value;
-
-    if (!nombre || !dni || !instrumento) {
-        e.preventDefault();
-        alert('Por favor completá nombre, DNI e instrumento.');
-    }
-
-});
-  </script>
-
+   
   <!-- Sonidos de instrumentos -->
   <script>
     (function () {

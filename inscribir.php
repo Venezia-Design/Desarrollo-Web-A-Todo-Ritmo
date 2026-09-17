@@ -1,4 +1,7 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 include 'conn.php';
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -6,14 +9,35 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     exit;
 }
 
-$nombre = trim($_POST["nombre"]);
-$dni = trim($_POST["dni"]);
-$instrumento = $_POST["instrumento"];
-$whatsapp = trim($_POST["whatsapp"]);
+$nombre = trim($_POST["nombre"] ?? '');
+$dni = trim($_POST["dni"] ?? '');
+$instrumento = $_POST["instrumento"] ?? '';
+$whatsapp = trim($_POST["whatsapp"] ?? '');
 
-// Validación básica
-if (empty($nombre) || empty($dni) || empty($instrumento)) {
-    die("Faltan datos obligatorios.");
+// Validación campo por campo
+$errores = [];
+
+if (empty($nombre)) {
+    $errores['nombre'] = 'Escribí tu nombre y apellido completos.';
+}
+if (empty($dni)) {
+    $errores['dni'] = 'Ingresá tu número de DNI, sin puntos.';
+}
+
+if (empty($whatsapp)) {
+    $errores['whatsapp'] = 'Ingresa tu número de telefono sin guiones.';
+}
+
+if (!empty($errores)) {
+    $_SESSION['errores_form'] = $errores;
+    $_SESSION['datos_form'] = [
+        'nombre' => $nombre,
+        'dni' => $dni,
+        'instrumento' => $instrumento,
+        'whatsapp' => $whatsapp,
+    ];
+    header("Location: home.php#anotarme");
+    exit;
 }
 
 // Verificar si ya existe un registro pendiente con ese DNI
