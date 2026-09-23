@@ -23,7 +23,11 @@
   --bordo:  #5E1100;
   --salmon: #F19682;
   --negro:  #000000;
-  --advertencia: #000000; /* NUEVO */
+  --advertencia: #000000; 
+
+  html {
+  scroll-behavior: smooth;
+}
 
   --font-body:    'neue-haas-grotesk-text', Helvetica, Arial, sans-serif;
   --font-heading: 'neue-haas-grotesk-display', Helvetica, Arial, sans-serif;

@@ -36,7 +36,7 @@ if (!empty($errores)) {
         'instrumento' => $instrumento,
         'whatsapp' => $whatsapp,
     ];
-    header("Location: home.php#anotarme");
+    header("Location: anotarme.php");
     exit;
 }
 
@@ -47,7 +47,7 @@ $stmt->execute();
 $resultado = $stmt->get_result();
 
 if ($resultado->num_rows > 0) {
-    header("Location: home.php?ok=2#anotarme");
+    header("Location: anotarme.php");
     exit;
 }
 
@@ -69,7 +69,7 @@ $stmt->bind_param(
 );
 
 if ($stmt->execute()) {
-    header("Location: home.php?ok=1#anotarme");
+    header("Location: anotarme.php");
 } else {
     echo "Error al guardar: " . $stmt->error;
 }

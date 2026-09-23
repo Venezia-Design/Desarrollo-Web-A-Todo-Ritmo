@@ -153,7 +153,7 @@ if ($esAdmin) {
           <?php if ($esAdmin): ?>
             <li class="nav-item"><a class="nav-link" href="#registros">Interesados</a></li>
           <?php else: ?>
-            <li class="nav-item"><a class="nav-link" href="#anotarme">Anotarme</a></li>
+            <li class="nav-item"><a class="nav-link" href="anotarme.php">Anotarme</a></li>
           <?php endif; ?>
           <?php if (!$esAdmin): ?>
             <?php if (isset($_SESSION['dni_estudiante'])): ?>
@@ -181,7 +181,7 @@ if ($esAdmin) {
         <?php if ($esAdmin): ?>
           <li class="nav-item"><a class="nav-link" href="#registros">Interesados<small>Personas anotadas</small></a></li>
         <?php else: ?>
-          <li class="nav-item"><a class="nav-link" href="#anotarme">Anotarme<small>Sumate ahora</small></a></li>
+          <li class="nav-item"><a class="nav-link" href="anotarme.php">Anotarme<small>Sumate ahora</small></a></li>
         <?php endif; ?>
         <?php if (!$esAdmin): ?>
           <?php if (isset($_SESSION['dni_estudiante'])): ?>
@@ -201,7 +201,7 @@ if ($esAdmin) {
       <p class="hero__eyebrow">Escuela de instrumentos &amp; muestras en vivo</p>
       <h1 class="hero__title">A Todo<br>Ritmo</h1>
       <p class="hero__sub">Un espacio para descubrir tu sonido, aprender un instrumento y compartirlo con otros.</p>
-      <a href="#anotarme" class="hero__cta">Quiero anotarme →</a>
+      <a href="anotarme.php" class="hero__cta">Quiero anotarme →</a>
     </div>
   </section>
 
@@ -408,108 +408,19 @@ $meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic
 
   <!-- ANOTARME: solo visible para usuarios normales -->
   <?php if (!$esAdmin): ?>
-  <section class="seccion seccion--rojo" id="anotarme">
+    <section class="seccion seccion--rojo" id="anotarme">
     <div class="seccion__header">
-      <p class="seccion__eyebrow seccion__eyebrow--claro">Sumate ahora</p>
-      <h2 class="seccion__titulo seccion__titulo--claro seccion__titulo--sans">Quiero anotarme</h2>
+      <p class="seccion__eyebrow seccion__eyebrow--claro">¿Ya conociste todo?</p>
+      <h2 class="seccion__titulo seccion__titulo--claro seccion__titulo--sans">Sumate a A Todo Ritmo</h2>
     </div>
-
-    <form class="form-atr" id="form-atr" action="inscribir.php" method="POST">
-
-    <div class="form-atr__group">
-    <label class="form-atr__label" for="f-nombre">Nombre completo</label>
-    <input
-        class="form-atr__input<?php echo isset($erroresForm['nombre']) ? ' form-atr__input--error' : ''; ?>"
-        id="f-nombre"
-        name="nombre"
-        type="text"
-        placeholder="Tu nombre y apellido"
-        value="<?php echo htmlspecialchars($datosForm['nombre'] ?? ''); ?>">
-    <?php if (isset($erroresForm['nombre'])): ?>
-        <p class="form-atr__advertencia"><?php echo htmlspecialchars($erroresForm['nombre']); ?></p>
-    <?php endif; ?>
-</div>
-
-<div class="form-atr__group">
-    <label class="form-atr__label" for="f-dni">DNI</label>
-    <input
-        class="form-atr__input<?php echo isset($erroresForm['dni']) ? ' form-atr__input--error' : ''; ?>"
-        id="f-dni"
-        name="dni"
-        type="text"
-        inputmode="numeric"
-        placeholder="Sin puntos"
-        value="<?php echo htmlspecialchars($datosForm['dni'] ?? ''); ?>">
-    <?php if (isset($erroresForm['dni'])): ?>
-        <p class="form-atr__advertencia"><?php echo htmlspecialchars($erroresForm['dni']); ?></p>
-    <?php endif; ?>
-</div>
-
-<div class="form-atr__group">
-    <label class="form-atr__label" for="f-instrumento">Instrumento de interés</label>
-    <select
-        class="form-atr__input form-atr__select<?php echo isset($erroresForm['instrumento']) ? ' form-atr__input--error' : ''; ?>"
-        id="f-instrumento"
-        name="instrumento">
-
-        <option value="" disabled <?php echo empty($datosForm['instrumento']) ? 'selected' : ''; ?>>Elegí un instrumento</option>
-
-        <?php foreach ($instrumentos as $id => $inst): ?>
-            <option value="<?php echo $id; ?>" <?php echo (isset($datosForm['instrumento']) && (string)$datosForm['instrumento'] === (string)$id) ? 'selected' : ''; ?>>
-                <?php echo htmlspecialchars($inst['nombre']); ?>
-            </option>
-        <?php endforeach; ?>
-
-    </select>
-    <?php if (isset($erroresForm['instrumento'])): ?>
-        <p class="form-atr__advertencia"><?php echo htmlspecialchars($erroresForm['instrumento']); ?></p>
-    <?php endif; ?>
-</div>
-
-<div class="form-atr__group">
-        <label class="form-atr__label" for="f-tel">WhatsApp</label>
-
-        <input
-            class="form-atr__input<?php echo isset($erroresForm['whatsapp']) ? ' form-atr__input--error' : ''; ?>"
-            id="f-tel"
-            name="whatsapp"
-            type="tel"
-            inputmode="tel"
-            placeholder="+54 11 ..."
-            value="<?php echo htmlspecialchars($datosForm['whatsapp'] ?? ''); ?>">
-
-        <?php if (isset($erroresForm['whatsapp'])): ?>
-            <p class="form-atr__advertencia"><?php echo htmlspecialchars($erroresForm['whatsapp']); ?></p>
-        <?php endif; ?>
-    </div>
-
-    <button
-        class="form-atr__submit"
-        id="form-submit"
-        type="submit">
-
-        Enviar inscripción →
-
-    </button>
-
-    <p class="form-atr__nota">
-        Si aún no sos estudiante, registraremos tus datos y nos comunicaremos con vos para coordinar el horario y el nivel musical.
+    <p class="form-atr__nota" style="text-align:center; max-width:500px; margin:0 auto 24px;">
+      Elegí tu instrumento, conocé a tus futuros profesores y sumate a los talleres cuando quieras empezar.
     </p>
-
-</form>
-
-    <?php if (isset($_GET['ok'])): ?>
-      <div class="form-exito">
-        <div class="form-exito__icono">🎶</div>
-        <h3 class="form-exito__titulo">¡Listo!</h3>
-        <p class="form-exito__texto">
-          Recibimos tu inscripción.
-          En las próximas 48 hs nos vamos a comunicar con vos por WhatsApp.
-        </p>
-      </div>
-    <?php endif; ?>
-
+    <div style="display:flex; justify-content:center;">
+      <a href="anotarme.php" class="hero__cta">Quiero anotarme →</a>
+    </div>
   </section>
+  
   <?php endif; /* fin !$esAdmin — formulario Anotarme */ ?>
 
   <!-- REGISTROS DE INTERESADOS: solo visible para administrador -->
