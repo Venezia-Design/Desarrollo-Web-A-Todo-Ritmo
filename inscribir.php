@@ -23,9 +23,8 @@ if (empty($nombre)) {
 if (empty($dni)) {
     $errores['dni'] = 'Ingresá tu número de DNI, sin puntos.';
 }
-
 if (empty($whatsapp)) {
-    $errores['whatsapp'] = 'Ingresa tu número de telefono sin guiones.';
+    $errores['whatsapp'] = 'Ingresá tu número de teléfono sin guiones.';
 }
 
 if (!empty($errores)) {
@@ -47,7 +46,7 @@ $stmt->execute();
 $resultado = $stmt->get_result();
 
 if ($resultado->num_rows > 0) {
-    header("Location: anotarme.php");
+    header("Location: anotarme.php?ok=2");
     exit;
 }
 
@@ -69,7 +68,7 @@ $stmt->bind_param(
 );
 
 if ($stmt->execute()) {
-    header("Location: anotarme.php");
+    header("Location: anotarme.php?ok=1");
 } else {
     echo "Error al guardar: " . $stmt->error;
 }

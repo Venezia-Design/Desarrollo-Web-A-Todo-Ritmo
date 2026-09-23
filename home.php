@@ -408,17 +408,15 @@ $meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic
 
   <!-- ANOTARME: solo visible para usuarios normales -->
   <?php if (!$esAdmin): ?>
-    <section class="seccion seccion--rojo" id="anotarme">
+   <section class="seccion seccion--rojo" id="anotarme">
     <div class="seccion__header">
-      <p class="seccion__eyebrow seccion__eyebrow--claro">¿Ya conociste todo?</p>
-      <h2 class="seccion__titulo seccion__titulo--claro seccion__titulo--sans">Sumate a A Todo Ritmo</h2>
+      <p class="seccion__eyebrow seccion__eyebrow--claro">¿Ya conociste sobre nosotros?</p>
+      <h2 class="seccion__titulo seccion__titulo--claro seccion__titulo--sans">Sumate a nuestra escuela</h2>
+      <p class="form-atr__nota" style="max-width:500px; margin-top:12px; text-align:left;">
+        Elegí tu instrumento, conocé a tus futuros profesores e inscribite a los talleres cuando quieras empezar.
+      </p>
     </div>
-    <p class="form-atr__nota" style="text-align:center; max-width:500px; margin:0 auto 24px;">
-      Elegí tu instrumento, conocé a tus futuros profesores y sumate a los talleres cuando quieras empezar.
-    </p>
-    <div style="display:flex; justify-content:center;">
-      <a href="anotarme.php" class="hero__cta">Quiero anotarme →</a>
-    </div>
+    <a href="anotarme.php" class="hero__cta">Quiero anotarme →</a>
   </section>
   
   <?php endif; /* fin !$esAdmin — formulario Anotarme */ ?>

@@ -30,6 +30,9 @@ while ($row = $res->fetch_assoc()) {
     <section class="seccion seccion--rojo" style="min-height:100vh; display:flex; align-items:center; justify-content:center; position:relative;">
         <a href="home.php" style="position:absolute; top:24px; left:24px; color:var(--crema); font-size:42px; line-height:1; z-index:10;" aria-label="Volver al sitio">←</a>
         <div style="width:100%; max-width:400px;">
+
+            <?php if (!isset($_GET['ok'])): ?>
+
             <div class="seccion__header">
                 <p class="seccion__eyebrow seccion__eyebrow--claro">Sumate ahora</p>
                 <h2 class="seccion__titulo seccion__titulo--claro seccion__titulo--sans">Quiero anotarme</h2>
@@ -119,6 +122,8 @@ while ($row = $res->fetch_assoc()) {
 
             </form>
 
+            <?php endif; ?>
+
             <?php if (isset($_GET['ok'])): ?>
               <div class="form-exito">
                 <div class="form-exito__icono">🎶</div>
@@ -126,6 +131,9 @@ while ($row = $res->fetch_assoc()) {
                 <p class="form-exito__texto">
                   Recibimos tu inscripción.
                   En las próximas 48 hs nos vamos a comunicar con vos por WhatsApp.
+                </p>
+                <p class="form-exito__texto">
+                    Regresá para seguir visitando nuestra página.
                 </p>
               </div>
             <?php endif; ?>
