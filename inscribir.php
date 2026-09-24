@@ -19,12 +19,26 @@ $errores = [];
 
 if (empty($nombre)) {
     $errores['nombre'] = 'Escribí tu nombre y apellido completos.';
+} elseif (!filter_var($nombre, FILTER_VALIDATE_REGEXP, [
+    'options' => ['regexp' => '/^[a-zA-ZÀ-ÿñÑ\s]{3,60}$/']
+])) {
+    $errores['nombre'] = 'El nombre solo puede tener letras y espacios.';
 }
+
 if (empty($dni)) {
     $errores['dni'] = 'Ingresá tu número de DNI, sin puntos.';
+} elseif (!filter_var($dni, FILTER_VALIDATE_REGEXP, [
+    'options' => ['regexp' => '/^\d{7,8}$/']
+])) {
+    $errores['dni'] = 'El DNI debe tener entre 7 y 8 números, sin puntos ni letras.';
 }
+
 if (empty($whatsapp)) {
     $errores['whatsapp'] = 'Ingresá tu número de teléfono sin guiones.';
+} elseif (!filter_var($whatsapp, FILTER_VALIDATE_REGEXP, [
+    'options' => ['regexp' => '/^\+?[0-9\s]{10,15}$/']
+])) {
+    $errores['whatsapp'] = 'Ingresá un número válido, solo dígitos (podés incluir el + del código de país).';
 }
 
 if (!empty($errores)) {
