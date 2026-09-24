@@ -23,7 +23,7 @@
         <?php if ($esAdmin): ?>
           <a class="footer__link" href="logout.php">Salir (admin)</a>
         <?php else: ?>
-          <a class="footer__link" href="index.php">Acceso admin</a>
+          <a class="footer__link" href="login_admin.php">Acceso admin</a>
         <?php endif; ?>
       </div>
     </div>

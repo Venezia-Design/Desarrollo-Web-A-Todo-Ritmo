@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'], $_POST['pass
         $_SESSION['username'] = $usuario['username'];
         $_SESSION['rol'] = $usuario['rol'];
 
-        header("Location: home.php");
+        header("Location: index.php");
         exit;
     } else {
         $errorLogin = "Usuario o contraseña incorrectos.";

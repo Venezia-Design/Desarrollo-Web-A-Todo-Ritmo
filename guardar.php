@@ -2,7 +2,7 @@
 include 'conn.php';
  
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'administrador') {
-    header("Location: home.php");
+    header("Location: index.php");
     exit;
 }
  
@@ -109,5 +109,5 @@ $anclas = [
 $tipo   = $_POST['tipo'] ?? '';
 $ancla  = $anclas[$tipo] ?? '';
 
-header("Location: home.php" . $ancla);
+header("Location: index.php" . $ancla);
 exit;

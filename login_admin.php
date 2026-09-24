@@ -1,9 +1,12 @@
 <?php
-include 'conn.php';
-include 'log_estudiante.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
  
-if (isset($_SESSION['dni_estudiante'])) {
-    header("Location: mi_panel.php");
+include 'conn.php';
+include 'log.php';
+ 
+if (estaLogueado()) {
+    header("Location: index.php");
     exit;
 }
 ?>
@@ -22,20 +25,20 @@ if (isset($_SESSION['dni_estudiante'])) {
         <a href="index.php" style="position:absolute; top:24px; left:24px; color:var(--crema); font-size:42px; line-height:1; z-index:10;" aria-label="Volver al sitio">←</a>
         <div style="width:100%; max-width:400px;">
             <div class="seccion__header">
-                <p class="seccion__eyebrow seccion__eyebrow--claro">Alumnos y profesores</p>
-                <h2 class="seccion__titulo seccion__titulo--claro seccion__titulo--sans">Mi cuenta</h2>
+                <p class="seccion__eyebrow seccion__eyebrow--claro">Acceso interno</p>
+                <h2 class="seccion__titulo seccion__titulo--claro seccion__titulo--sans">A Todo Ritmo</h2>
             </div>
             <form class="form-atr" action="" method="POST">
                 <div class="form-atr__group">
-                    <label class="form-atr__label" for="nombre">Nombre</label>
-                    <input class="form-atr__input" type="text" id="nombre" name="nombre" required>
+                    <label class="form-atr__label" for="email">Email</label>
+                    <input class="form-atr__input" type="email" id="email" name="email" required>
                 </div>
                 <div class="form-atr__group">
-                    <label class="form-atr__label" for="dni">Contraseña (tu DNI)</label>
-                    <input class="form-atr__input" type="text" id="dni" name="dni" required>
+                    <label class="form-atr__label" for="password">Contraseña</label>
+                    <input class="form-atr__input" type="password" id="password" name="password" required>
                 </div>
-                <?php if ($errorEstudiante): ?>
-                    <p class="form-atr__nota" style="color:var(--crema);"><?php echo htmlspecialchars($errorEstudiante); ?></p>
+                <?php if ($errorLogin): ?>
+                    <p class="form-atr__nota" style="color:var(--crema);"><?php echo htmlspecialchars($errorLogin); ?></p>
                 <?php endif; ?>
                 <button class="form-atr__submit" type="submit">Iniciar sesión →</button>
             </form>

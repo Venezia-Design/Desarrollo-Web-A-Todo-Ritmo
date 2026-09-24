@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 include 'conn.php';
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    header("Location: home.php");
+    header("Location: index.php");
     exit;
 }
 
