@@ -14,6 +14,11 @@ $dni = trim($_POST["dni"] ?? '');
 $instrumento = $_POST["instrumento"] ?? '';
 $whatsapp = trim($_POST["whatsapp"] ?? '');
 
+// Sanitización
+$nombre = filter_var($nombre, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$dni = filter_var($dni, FILTER_SANITIZE_NUMBER_INT);
+$whatsapp = filter_var($whatsapp, FILTER_SANITIZE_NUMBER_INT);
+
 // Validación campo por campo
 $errores = [];
 
